@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace命名空间,作用就是对sql进行分类化管理(sql隔离) -->
+<mapper namespace="com.sdau.dao.UserDao">
+
+	<!-- Register -->
+	<insert id="insertUser" parameterType="com.sdau.entity.User">
+		insert into cn_user
+		(cn_user_id,cn_user_name,cn_user_password,cn_user_token,cn_user_nick)
+		values
+		(#{cn_user_id},#{cn_user_name},#{cn_user_password},#{cn_user_token},#{cn_user_nick})
+	</insert>
+
+
+	<select id="findByUserName" resultType="com.sdau.entity.User"
+		parameterType="string">
+		select * from cn_user where cn_user_name=#{cn_user_name}
+	</select>
+
+</mapper>

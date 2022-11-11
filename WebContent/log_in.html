@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" href="styles/login.css"/>
+<script type="text/javascript" src="scripts/jquery.min.js"></script>
+<script type="text/javascript" src="scripts/cookie_util.js"></script>
+<!-- 注册功能 -->
+<script type="text/javascript">
+    $(function(){//页面加载完毕后执行该function
+	    $("#regist_button").click(function(){//给注册按钮添加单机事件
+	    	
+	    	//清除原有提示信息
+	    	$("#warning_1").hide();
+			$("#warning_2").hide();
+			$("#warning_3").hide();
+			$("#warning_4").hide();
+		    //获取表单中的数据
+		    var name=$("#regist_username").val().trim();//获取账号；
+		    var password=$("#regist_password").val().trim();//获取密码
+		    var pwd_confirm=$("#final_password").val().trim();//获取确认密码
+		    var nick=$("#nickname").val().trim();//获取昵称
+		    //检测表单格式
+		    //检测账号是否为空
+		    var flag=true;
+		    if(name==""){//若执行到if内部，则说明账号为空。提示账号不能为空
+			    $("#warning_1 span").html("用户名不能为空");//给span赋值
+			    $("#warning_1").show();//show（）表示显示，hide()表示隐藏
+			    flag=false;
+		    }
+		    
+		    //检验昵称
+		    if(nick==""){
+		    	$("#warning_4 span").html("昵称不能为空");
+		    	$("#warning_4").show();
+		    	flag=false;
+		    }
+		    
+		    //检验密码是否为空
+		    if(password==""){
+			    $("#warning_2 span").html("密码不能为空");
+			    $("#warning_2").show();
+			    flag=false;
+		    }
+		    
+		    //检验两遍密码是否一致
+		    if(password!=pwd_confirm){
+		    	$("#warning_3 span").html("密码不一致");
+		    	$("#warning_3").show();
+		    	flag=false;
+		    }
+		   
+		    //发送Ajax请求
+		    if(flag){//flag是判断我们表单格式的依据
+			    $.ajax({
+				    url:"http://localhost:8081/SDAU_CloudNote/user/register.do",//路径
+				    type:"post",//请求类型
+				    data:{"name":name,"password":password,"nick":nick},//向后台传的数据
+				    dataType:"json",//解析的数据格式
+				    success:function(result){//若执行成功，则执行该函数
+					    alert(result.msg);  //result.getMsg() NoteResult status data msg
+				        if(result.status==0){
+				    	    $("#back").click;
+				        }else{
+				    	    $("warning_1 span").html(result.msg);
+				    	    $("warning_1").show();
+				        }
+				    },
+			        error:function(){//若执行失败，执行该函数
+				       alert("注册失败");
+			        }
+			    });
+			
+		    }
+	    });
+    });
+</script>
+
+<!-- 登录功能 -->
+<script type="text/javascript">
+    $(function(){
+	    $("#login").click(function(){
+	    	//清空原有提示信息
+	    	$("#count_warning").hide();
+	    	$("#password_warning").hide();
+	    	
+	    	//获取表单数据
+	    	var name=$("#count").val().trim();  //用户名
+	    	var password=$("#password").val().trim();    //密码
+	    	//检验数据格式
+	    	var flag=true;
+	    	if(name==""){
+	    		$("#count_warning span").html("请输入用户名");
+	    		$("#count_warning").show();
+	    		flag=false;
+	    	}
+	    	if(password==""){
+	    		$("#password_warning span").html("请输入密码");
+	    		$("#password_warning").show();
+	    		flag=false;
+	    	}
+	    	
+	    	//发送Ajax请求
+	    	 if(flag){  //flag是判断表单格式的依据
+	    		$.ajax({
+	    			url:"http://localhost:8081/SDAU_CloudNote/user/login.do",  //路径
+	    			type:"post",  //请求方式
+	    			data:{"name":name,"password":password},
+	    			dataType:"json",
+	    			success:function(result){
+	    				if(result.status==0){ //登录成功
+	    					//获取登录者的id，存入cookie
+	    					var userId=result.data;
+	    					addCookie("uid", userId, 2);  //注意：需要引入cookie_util.js!!!
+	    					window.location.href="edit.html";  //进入首页
+	    				}else if(result.status==1){
+	    					//用户名不存在
+	    					$("#count_warning span").html(result.msg);
+	    					$("#count_warning").show();
+	    				}else if(result.status==2){
+	    					//密码错误
+	    					$("#password_warning span").html(result.msg);
+	    					$("#password_warning").show();
+	    				}
+	    			},
+	    			error:function(){
+	    				alert("登录失败");
+	    			}
+	    		});
+	    	} 
+	    });
+    });
+</script>
+
+</head>
+	<body>
+		<div class="global">
+			<div class="log log_in" tabindex='-1' id='dl'>
+				<dl>
+					<dt>
+						<div class='header'>
+							<h3>登&nbsp;录</h3>
+						</div>
+					</dt>
+					<dt></dt>
+					<dt>
+						<div class='letter'>
+							用户名:&nbsp;<input type="text" name="" id="count" tabindex='1'/>
+							<div class='warning' id='count_warning'><span>请输入用户名</span></div>
+						</div>
+					</dt>
+					<dt>
+						<div class='letter'>
+							密&nbsp;&nbsp;&nbsp;码:&nbsp;<input type="password" name="" id="password" tabindex='2'/>
+							<div class='warning' id='password_warning'><span>请输入密码</span></div>
+						</div>
+					</dt>
+					<dt>
+						<div>
+							<input type="button" name="" id="login" value='&nbsp登&nbsp录&nbsp' tabindex='3'/>
+							<input type="button" name="" id="sig_in" value='&nbsp注&nbsp册&nbsp' tabindex='4'/>
+						</div>
+					</dt>
+				</dl>
+			</div>
+			<div class="sig sig_out" tabindex='-1' id='zc' style='visibility:hidden;'>
+				<dl>
+					<dt>
+						<div class='header'>
+							<h3>注&nbsp;册</h3>
+						</div>
+					</dt>
+					<dt></dt>
+					<dt>
+						<div class='letter'>
+							用户名:&nbsp;<input type="text" name="" id="regist_username" tabindex='5'/>
+							<div class='warning' id='warning_1'><span>该用户名不可用</span></div>
+						</div>
+					</dt>
+					<dt>
+						<div class='letter'>
+							昵&nbsp;&nbsp;&nbsp;称:&nbsp;<input type="text" name="" id="nickname" tabindex='6'/>  
+							<div class='warning' id='warning_4'><span>该昵称不可用</span></div>              
+						</div>
+					</dt>
+					<dt>
+						<div class='letter'>
+							密&nbsp;&nbsp;&nbsp;码:&nbsp;<input type="password" name="" id="regist_password" tabindex='7'/>
+							<div class='warning' id='warning_2'><span>密码长度过短</span></div>
+						</div>
+					</dt>
+					<dt>
+						<div class='password'>
+							&nbsp;&nbsp;&nbsp;确认密码:&nbsp;<input type="password" name="" id="final_password" tabindex='8'/>
+							<div class='warning' id='warning_3'><span>密码输入不一致</span></div>
+						</div>
+					</dt>
+					<dt>
+						<div>
+							<input type="button" name="" id="regist_button" value='&nbsp注&nbsp册&nbsp' tabindex='9'/>
+							<input type="button" name="" id="back" value='&nbsp返&nbsp回&nbsp' tabindex='10'/>
+							<script type="text/javascript">
+							function get(e){
+								return document.getElementById(e);
+							}
+							get('sig_in').onclick=function(){
+								get('dl').className='log log_out';
+								get('zc').className='sig sig_in';
+							}
+							get('back').onclick=function(){
+								get('zc').className='sig sig_out';
+								get('dl').className='log log_in';
+							}
+							window.onload=function(){
+								var t =setTimeout("get('zc').style.visibility='visible'",800);
+								get('final_password').onblur=function(){
+									var npassword=get('regist_password').value;
+									var fpassword=get('final_password').value;
+									if(npassword!=fpassword){
+										get('warning_3').style.display='block';
+									}
+								}
+								get('regist_password').onblur=function(){
+									var npassword=get('regist_password').value.length;
+									if(npassword<6&&npassword>0){
+										get('warning_2').style.display='block';
+									}
+								}
+								get('regist_password').onfocus=function(){
+									get('warning_2').style.display='none';
+								}
+								get('final_password').onfocus=function(){
+									get('warning_3').style.display='none';
+								}
+							}
+							</script>
+						</div>
+					</dt>
+				</dl>
+			</div>
+		</div>
+	</body>
+</html>
